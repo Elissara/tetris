@@ -2,7 +2,7 @@
 
 Hotkeys:
 
-    - start/pause: Tab
+    - start/pause: Space
 
     - quit: Ecs
 
