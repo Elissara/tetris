@@ -2,10 +2,9 @@
 
 Hotkeys:
 
-    - start: Tab 
+    - start/pause: Space
 	
     - quit: Ecs 
-	
-    - pause/unpause: Space
+
 
 ![](img/screenshot.jpg)
