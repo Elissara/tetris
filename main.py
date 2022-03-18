@@ -13,7 +13,6 @@ sc = pygame.display.set_mode(RES)
 pygame.display.set_caption("Tetris")
 game_sc = pygame.Surface(GAME_RES)
 clock = pygame.time.Clock()
-#pause = False
 
 grid = [pygame.Rect(x * TILE, y * TILE, TILE, TILE) for x in range(W) for y in range(H)]
 
@@ -22,7 +21,7 @@ figures_pos = [[(-1, 0), (-2, 0), (0, 0), (1, 0)],
                [(-1, 0), (-1, 1), (0, 0), (0, -1)],
                [(0, 0), (-1, 0), (0, 1), (-1, -1)],
                [(0, 0), (0, -1), (0, 1), (-1, -1)],
-               [(0, 0), (0, -1), (0, 1), (-1, -1)],
+               [(0, 0), (0, -1), (0, 1), (1, -1)],
                [(0, 0), (0, -1), (0, 1), (-1, 0)]]
 
 figures = [[pygame.Rect(x + W // 2, y + 1, 1, 1) for x, y in fig_pos] for fig_pos in figures_pos]
@@ -99,8 +98,8 @@ def game_over_sc():
     title_game_over2 = game_over.render('OVER', True, pygame.Color('Darkred'))
     sc.blit(title_game_over1, (85, 290))
     sc.blit(title_game_over2, (17, 470))
-    quit_bt = button(sc, (600, 865), 'Quit')
-    start_bt = button(sc, (580, 795), 'Start')
+    quit_bt = button(sc, (540, 865), 'Quit')
+    start_bt = button(sc, (520, 795), 'Start')
     while True:
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
@@ -108,14 +107,55 @@ def game_over_sc():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
-            if event.key == pygame.K_TAB:
-                return True
+                if event.key == pygame.K_TAB:
+                    return True
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if quit_bt.collidepoint(pygame.mouse.get_pos()):
                     pygame.quit()
                 else:
                     return True
         pygame.display.update()
+
+
+def paused():
+    pause = pygame.image.load('img/pause.jpg').convert()
+    sc.blit(pause, (170, 395))
+    sc.blit(title_tetris, (475, 7))
+    sc.blit(title_score, (525, 640))
+    sc.blit(font.render(str(score), True, pygame.Color('white')), (550, 695))
+    sc.blit(title_record, (525, 510))
+    sc.blit(font.render(str(record), True, pygame.Color('gold')), (550, 565))
+    for i in range(4):
+        figure_rect.x = next_figure[i].x * TILE + 380
+        figure_rect.y = next_figure[i].y * TILE + 185
+        pygame.draw.rect(sc, next_color, figure_rect)
+
+    while pause:
+        pygame.display.set_caption("Tetris")
+        for event in pygame.event.get():
+            print(event)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        quit_bt = button(sc, (550, 865), 'Quit')
+        continue_bt = button(sc, (485, 795), 'Continue')
+        pygame.display.update()
+        while True:
+            for event in pygame.event.get():
+                if (event.type == pygame.QUIT):
+                    pygame.quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                    if event.key == pygame.K_SPACE:
+                        return False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if quit_bt.collidepoint(pygame.mouse.get_pos()):
+                        pygame.quit()
+                    else:
+                        return False
+        pygame.display.update()
+
 
 
 def check_borders():
@@ -156,8 +196,6 @@ while True:
         if event.type == pygame.QUIT:
             exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_p:
-                pause = True
             if event.key == pygame.K_LEFT:
                 dx = -1
             elif event.key == pygame.K_RIGHT:
@@ -166,8 +204,8 @@ while True:
                 anim_limit = 100
             elif event.key == pygame.K_UP:
                 rotate = True
-#            elif event.key == pygame.K_SPACE:
-#                pause = True
+            elif event.key == pygame.K_SPACE:
+                paused()
     # move x
     figure_old = deepcopy(figure)
     for i in range(4):
@@ -217,7 +255,7 @@ while True:
             sound.play()
     # compute score
     score += scores[lines]
-    # draw grid
+    # draw grid    sc.blit(title_tetris, (475, 7))
     [pygame.draw.rect(game_sc, (40, 40, 40), i_rect, 1) for i_rect in grid]
     # draw figure
     for i in range(4):
