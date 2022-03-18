@@ -6,13 +6,14 @@ W, H = 10, 20
 TILE = 45
 GAME_RES = W * TILE, H * TILE
 RES = 750, 940
-FPS = 60
+FPS = 120
 
 pygame.init()
 sc = pygame.display.set_mode(RES)
 pygame.display.set_caption("Tetris")
 game_sc = pygame.Surface(GAME_RES)
 clock = pygame.time.Clock()
+basic_font = pygame.font.Font('font/MarckScript-Regular.ttf', 75)
 
 grid = [pygame.Rect(x * TILE, y * TILE, TILE, TILE) for x in range(W) for y in range(H)]
 
@@ -37,12 +38,12 @@ pygame.mixer.music.load("snd/music.mp3")
 pygame.mixer.music.play(-1)
 sound = pygame.mixer.Sound("snd/sound.ogg")
 
-main_font = pygame.font.Font('font/MarckScript-Regular.ttf', 75)
-font = pygame.font.Font('font/MarckScript-Regular.ttf', 75)
+#main_font = pygame.font.Font('font/MarckScript-Regular.ttf', 75)
+#font = pygame.font.Font('font/MarckScript-Regular.ttf', 75)
 
-title_tetris = main_font.render('TETRIS', True, pygame.Color('sienna2'))
-title_score = font.render('score:', True, pygame.Color('green'))
-title_record = font.render('record:', True, pygame.Color('steelblue2'))
+title_tetris = basic_font.render('TETRIS', True, pygame.Color('sienna2'))
+title_score = basic_font.render('score:', True, pygame.Color('green'))
+title_record = basic_font.render('record:', True, pygame.Color('steelblue2'))
 
 get_color = lambda: (randrange(30, 256), randrange(30, 256), randrange(30, 256))
 color = get_color()
@@ -55,20 +56,34 @@ scores = {0: 0, 1: 100, 2: 300, 3: 700, 4: 1500}
 
 
 def button(screen, position, text):
-    text_render = font.render(text, 1, 'cyan')
-    x, y, w, h = text_render.get_rect()
+    text_render = basic_font.render(text, 1, 'cyan')
     x, y = position
     return screen.blit(text_render, (x, y))
 
-
-def start():
-    return True
+def hotkeys(bt1, bt2):
+    for event in pygame.event.get():
+        if (event.type == pygame.QUIT):
+            pygame.quit()
+            exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                exit()
+            if event.key == pygame.K_SPACE:
+                return True
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if bt1.collidepoint(pygame.mouse.get_pos()):
+                pygame.quit()
+                exit()
+            elif bt2.collidepoint(pygame.mouse.get_pos()):
+                return True
+    pygame.display.update()
 
 
 def start_sc():
     start_sc_bg = pygame.image.load('img/start_sc.jpg').convert()
     sc.blit(start_sc_bg, (0, 0))
-    title_menu = font.render('Welcome to the Tetris!!!', True, pygame.Color('Yellow'))
+    title_menu = basic_font.render('Welcome to the Tetris!!!', True, pygame.Color('Yellow'))
     sc.blit(title_menu, (20, 100))
     owner_font = pygame.font.Font('font/MarckScript-Regular.ttf', 25)
     title_owner = owner_font.render("©Elissara", True, pygame.Color('White'))
@@ -76,20 +91,9 @@ def start_sc():
     quit_bt = button(sc, (310, 400), 'Quit')
     start_bt = button(sc, (300, 300), 'Start')
     while True:
-        for event in pygame.event.get():
-            if (event.type == pygame.QUIT):
-                pygame.quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                if event.key == pygame.K_TAB:
-                    return True
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if quit_bt.collidepoint(pygame.mouse.get_pos()):
-                    pygame.quit()
-                else:
-                    return True
-        pygame.display.update()
+        while hotkeys(quit_bt, start_bt):
+            return True
+
 
 
 def game_over_sc():
@@ -101,20 +105,8 @@ def game_over_sc():
     quit_bt = button(sc, (540, 865), 'Quit')
     start_bt = button(sc, (520, 795), 'Start')
     while True:
-        for event in pygame.event.get():
-            if (event.type == pygame.QUIT):
-                pygame.quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                if event.key == pygame.K_TAB:
-                    return True
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if quit_bt.collidepoint(pygame.mouse.get_pos()):
-                    pygame.quit()
-                else:
-                    return True
-        pygame.display.update()
+        while hotkeys(quit_bt, start_bt):
+            return True
 
 
 def paused():
@@ -122,9 +114,9 @@ def paused():
     sc.blit(pause, (170, 395))
     sc.blit(title_tetris, (475, 7))
     sc.blit(title_score, (525, 640))
-    sc.blit(font.render(str(score), True, pygame.Color('white')), (550, 695))
+    sc.blit(basic_font.render(str(score), True, pygame.Color('white')), (550, 695))
     sc.blit(title_record, (525, 510))
-    sc.blit(font.render(str(record), True, pygame.Color('gold')), (550, 565))
+    sc.blit(basic_font.render(str(record), True, pygame.Color('gold')), (550, 565))
     for i in range(4):
         figure_rect.x = next_figure[i].x * TILE + 380
         figure_rect.y = next_figure[i].y * TILE + 185
@@ -136,25 +128,13 @@ def paused():
             print(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
-                quit()
+                exit()
         quit_bt = button(sc, (550, 865), 'Quit')
         continue_bt = button(sc, (485, 795), 'Continue')
         pygame.display.update()
         while True:
-            for event in pygame.event.get():
-                if (event.type == pygame.QUIT):
-                    pygame.quit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        pygame.quit()
-                    if event.key == pygame.K_SPACE:
-                        return False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if quit_bt.collidepoint(pygame.mouse.get_pos()):
-                        pygame.quit()
-                    else:
-                        return False
-        pygame.display.update()
+            while hotkeys(quit_bt, continue_bt):
+                return True
 
 
 
@@ -276,9 +256,9 @@ while True:
     # draw titles
     sc.blit(title_tetris, (475, 7))
     sc.blit(title_score, (525, 640))
-    sc.blit(font.render(str(score), True, pygame.Color('white')), (550, 695))
+    sc.blit(basic_font.render(str(score), True, pygame.Color('white')), (550, 695))
     sc.blit(title_record, (525, 510))
-    sc.blit(font.render(str(record), True, pygame.Color('gold')), (550, 565))
+    sc.blit(basic_font.render(str(record), True, pygame.Color('gold')), (550, 565))
     # game over
     for i in range(W):
         if field[0][i]:
